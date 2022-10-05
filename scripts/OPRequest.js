@@ -2301,7 +2301,7 @@ async function getCurrentListPartAAsync(action, rowIndex, wpConvertUser, httpMet
 	const fullURL = setFullUrl(action, "")
 	const body = setBody(action, "", "", rowIndex, wpConvertUser, "")
 
-	const reqResponse = await currentRequestAsync(fullURL, httpMethod, apiKey, body, prefixName, prefixValue)
+	const reqResponse = await currentRequestAsync(fullURL, httpMethod, userName, apiKey, body, prefixName, prefixValue)
 	return reqResponse
 }
 
@@ -2310,7 +2310,7 @@ async function doCurrentActionAsync(action, row, billingStatusList, httpMethod, 
 
 	if (withGet === true) {
 
-		const getReqResponse = await currentRequestAsync(fullURL, "GET", apiKey, "", prefixName, prefixValue)
+		const getReqResponse = await currentRequestAsync(fullURL, "GET", userName, apiKey, "", prefixName, prefixValue)
 
 		if (typeof getReqResponse.error !== "undefined") {
 			return getReqResponse
@@ -2322,7 +2322,7 @@ async function doCurrentActionAsync(action, row, billingStatusList, httpMethod, 
 
 		const body = setBody(action, row, lockVersion, "", "", "")
 
-		const reqResponse = await currentRequestAsync(fullURL, httpMethod, apiKey, body, prefixName, prefixValue)
+		const reqResponse = await currentRequestAsync(fullURL, httpMethod, userName, apiKey, body, prefixName, prefixValue)
 
 		reqResponse.prelog.unshift(...getReqResponse.prelog)
 
@@ -2330,14 +2330,14 @@ async function doCurrentActionAsync(action, row, billingStatusList, httpMethod, 
 	} else {
 		const body = setBody(action, row, "", "", "", billingStatusList)
 
-		const reqResponse = await currentRequestAsync(fullURL, httpMethod, apiKey, body, prefixName, prefixValue)
+		const reqResponse = await currentRequestAsync(fullURL, httpMethod, userName, apiKey, body, prefixName, prefixValue)
 		return reqResponse
 	}
 }
 
-async function currentRequestAsync(fullURL, httpMethod, apiKey, body, prefixName, prefixValue) {
+async function currentRequestAsync(fullURL, httpMethod, userName, apiKey, body, prefixName, prefixValue) {
 
-	const reqResponse = await WRequestAsync(fullURL, httpMethod, apiKey, body)
+	const reqResponse = await WRequestAsync(fullURL, httpMethod, userName, apiKey, body)
 
 	if (typeof reqResponse.data === "undefined"
 		&& typeof reqResponse.errorType !== "undefined") {

@@ -2305,10 +2305,9 @@ async function getCurrentListPartAAsync(action, rowIndex, wpConvertUser, httpMet
 	return reqResponse
 }
 
-async function doCurrentActionAsync(action, row, billingStatusList, httpMethod, withGet, apiKey, prefixName, prefixValue) {
-	const fullURL = setFullUrl(action, row)
-
+async function doCurrentActionAsync(action, row, rowIndex, wpConvertUser, billingStatusList, httpMethod, withGet, apiKey, prefixName, prefixValue) {
 	if (withGet === true) {
+		const fullURL = setFullUrl(action, row)
 
 		const getReqResponse = await currentRequestAsync(fullURL, "GET", userName, apiKey, "", prefixName, prefixValue)
 
@@ -2324,11 +2323,19 @@ async function doCurrentActionAsync(action, row, billingStatusList, httpMethod, 
 
 		const reqResponse = await currentRequestAsync(fullURL, httpMethod, userName, apiKey, body, prefixName, prefixValue)
 
+		//array.unshift adds elements to the beginning of an array
 		reqResponse.prelog.unshift(...getReqResponse.prelog)
 
 		return reqResponse
 	} else {
+		// getCurrentListPartAAsync()
+		// const fullURL = setFullUrl(action, "")
+		const fullURL = setFullUrl(action, row)
+
+		// const body = setBody(action, "", "", rowIndex, wpConvertUser, "")
+
 		const body = setBody(action, row, "", "", "", billingStatusList)
+		// const body = setBody(action, row, "", "", "", billingStatusList)
 
 		const reqResponse = await currentRequestAsync(fullURL, httpMethod, userName, apiKey, body, prefixName, prefixValue)
 		return reqResponse

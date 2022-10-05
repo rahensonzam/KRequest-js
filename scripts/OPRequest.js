@@ -2347,16 +2347,19 @@ async function currentRequestAsync(fullURL, httpMethod, apiKey, body, prefixName
 	return { prefix: `${prefixName} ${prefixValue}: ${httpMethod}`, prelog: ["request started"], status: reqResponse.status, data: reqResponse.data }
 }
 
-async function WRequestAsync(fullURL, httpMethod, apiKey, bodyData) {
+async function WRequestAsync(fullURL, httpMethod, userName, apiKey, bodyData) {
 	const responseData = {}
 
 	try {
 		const options = {
 			type: httpMethod,
-			username: "apikey",
-			password: apiKey,
+			beforeSend: function (request) {
+				request.setRequestHeader("X-AUTH-USER", userName);
+				request.setRequestHeader("X-AUTH-TOKEN", apiKey);
+			},
 			headers: {
-				Authorization: `Basic ${btoa(`apikey:${apiKey}`)}`
+				'X-AUTH-USER': userName,
+				'X-AUTH-TOKEN': apiKey,
 			},
 			contentType: 'application/json'
 		}

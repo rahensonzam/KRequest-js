@@ -846,7 +846,7 @@ function webErrorsPresent(resultList) {
 async function retrievePageCountAsync(action, apiKey, wpConvertUser) {
 	const task = []
 
-	task.push(getCurrentListPartAAsync(action, 1, wpConvertUser, "GET", apiKey, "pageNum", 1))
+	task.push(doCurrentActionAsync(action, "", 1, wpConvertUser, "", "GET", false, apiKey, "pageNum", 1))
 	const result = await Promise.all(task)
 
 	return result
@@ -2297,14 +2297,6 @@ function convertUnitsBack(convertedUnits) {
 	return (num1 * 24) + num2
 }
 
-// async function getCurrentListPartAAsync(action, rowIndex, wpConvertUser, httpMethod, apiKey, prefixName, prefixValue) {
-// 	const fullURL = setFullUrl(action, "")
-// 	const body = setBody(action, "", "", rowIndex, wpConvertUser, "")
-
-// 	const reqResponse = await currentRequestAsync(fullURL, httpMethod, userName, apiKey, body, prefixName, prefixValue)
-// 	return reqResponse
-// }
-
 async function doCurrentActionAsync(action, row, rowIndex, wpConvertUser, billingStatusList, httpMethod, withGet, apiKey, prefixName, prefixValue) {
 	if (withGet === true) {
 		const fullURL = setFullUrl(action, row)
@@ -2328,15 +2320,9 @@ async function doCurrentActionAsync(action, row, rowIndex, wpConvertUser, billin
 
 		return reqResponse
 	} else {
-		// GET request getCurrentListPartAAsync()
-		// const fullURL = setFullUrl(action, "")
 		const fullURL = setFullUrl(action, row)
 
-		// GET request getCurrentListPartAAsync()
-		// const body = setBody(action, "", "", rowIndex, wpConvertUser, "")
-
 		const body = setBody(action, row, "", rowIndex, wpConvertUser, billingStatusList)
-		// const body = setBody(action, row, "", "", "", billingStatusList)
 
 		const reqResponse = await currentRequestAsync(fullURL, httpMethod, userName, apiKey, body, prefixName, prefixValue)
 		return reqResponse

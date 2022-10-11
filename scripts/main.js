@@ -35,7 +35,7 @@ import {
     getDomElementById,
     writeToLogDom
 } from "./ui.js"
-import { actions, webErrorTypes, doActionAsync, webErrorsPresent } from "./OPRequest.js"
+import { actions, webErrorTypes, doActionAsync, webErrorsPresent } from "./KRequest.js"
 
 // import * as Papa from "./libs/papaparse/papaparse.js"
 // import { $ } from "./libs/jquery/jquery-3.5.1.js"

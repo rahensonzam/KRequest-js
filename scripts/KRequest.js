@@ -7,7 +7,7 @@
 import { getCustom, getGradeOrder, getBillingStatusEnum, getBillingStatusReportFilterEnum } from "./otherConfigAndData.js"
 
 const hostURL = "http://127.0.0.1:9999"
-const apiURL = "/api/v3"
+const apiURL = "/api"
 const baseURL = `${hostURL}${apiURL}`
 // const apiKey = "secretkey"
 // const wpConvertUser = 10

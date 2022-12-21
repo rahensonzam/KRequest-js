@@ -1386,16 +1386,21 @@ function setOutputArrayData(action, row, rowIndex, i, currentDate, resultList, w
 				status: retrivedProjectList[i]["_links"].status.title
 			}]
 		} else if (action === actions.getTimeEntries) {
+			const splitedDescription = splitDescription(retrivedProjectList[i].description)
 			return [{
 				id: retrivedProjectList[i].id,
-				spentOn: retrivedProjectList[i].spentOn,
-				hours: convertUnitsBack(retrivedProjectList[i].hours),
-				comment: retrivedProjectList[i].comment.raw,
-				workPackage: extractWorkPackage(retrivedProjectList[i]),
-				user: extractUser(retrivedProjectList[i]),
-				activity: extractActivity(retrivedProjectList[i]),
-				billingStatus: retrivedProjectList[i]["_links"][custom.billingStatus].title,
-				feeNoteNumber: retrivedProjectList[i][custom.feeNoteNumber]
+				spentOn: extractDate(retrivedProjectList[i].begin),
+				hours: convertUnitsBack(retrivedProjectList[i].duration),
+				comment: splitedDescription.description,
+				user: retrivedProjectList[i].user,
+				// activities - data type changed to array of text from number
+				activities: retrivedProjectList[i].tags,
+				billable: true,
+				exported: false,
+				customer: retrivedProjectList[i].project,
+				period: splitedDescription.period,
+				billingStatus: splitedDescription.billingStatus,
+				feeNoteNumber: splitedDescription.feeNoteNumber
 			}]
 		}
 	} else if (action === actions.exportTimeEntries) {
@@ -2104,7 +2109,7 @@ function setFullUrl(action, row) {
 		return `${baseURL}/work_packages`
 	} else if (action === actions.addTimeEntry
 		|| action === actions.getTimeEntries) {
-		return `${baseURL}/time_entries`
+		return `${baseURL}/timesheets`
 	} else {
 		throw new RangeError(`Invalid action: "${action}"`)
 	}
@@ -2150,7 +2155,7 @@ function setBody(action, row, lockVersion, rowIndex, wpConvertUser, billingStatu
 			tempTimeEntry.spentOn = row.spentOn
 		}
 		if (checkIfPropertyExists(row, "units")) {
-			const convertedUnits = convertUnits(row.units)
+			const convertedUnits = convertUnitsOP(row.units)
 			tempTimeEntry.hours = convertedUnits
 		}
 		if (checkIfPropertyExists(row, "comment")) {
@@ -2236,7 +2241,7 @@ function setBody(action, row, lockVersion, rowIndex, wpConvertUser, billingStatu
 			"name": row.name
 		}
 	} else if (action === actions.addTimeEntry) {
-		const convertedUnits = convertUnits(row.units)
+		const convertedUnits = convertUnitsOP(row.units)
 		return {
 			"spentOn": row.spentOn,
 			"hours": convertedUnits,
@@ -2272,18 +2277,18 @@ function setBody(action, row, lockVersion, rowIndex, wpConvertUser, billingStatu
 			filters: "[]"
 		}
 	} else if (action === actions.getTimeEntries) {
-		// FIXME: pageSize is hardcoded as 100
+		// FIXME: pageSize is hardcoded as 50
 		return {
-			offset: rowIndex,
-			pageSize: 100,
-			filters: "[]"
+			page: rowIndex,
+			size: 50,
+			active: 0
 		}
 	} else {
 		throw new RangeError(`Invalid action: "${action}"`)
 	}
 }
 
-function convertUnits(units) {
+function convertUnitsOP(units) {
 	let convertedUnits = "P"
 	const quotient = Math.floor(units / 24)
 	const remainder = units % 24
@@ -2297,7 +2302,7 @@ function convertUnits(units) {
 	return convertedUnits
 }
 
-function convertUnitsBack(convertedUnits) {
+function convertUnitsBackOP(convertedUnits) {
 	let num1 = 0
 	let num2 = 0
 	if (convertedUnits.includes("D")) {
@@ -2308,6 +2313,16 @@ function convertUnitsBack(convertedUnits) {
 	}
 
 	return (num1 * 24) + num2
+}
+
+function convertUnitsBack(convertedUnits) {
+	// from seconds to 15 minute units
+	// fractional unit error checking handled elsewhere
+	return (convertedUnits / 60) / 15
+}
+
+function extractDate(convertedUnits) {
+	return convertedUnits.substring(0, convertedUnits.lastIndexOf("T"))
 }
 
 async function doCurrentActionAsync(action, row, rowIndex, wpConvertUser, billingStatusList, httpMethod, withGet, apiUserName, apiKey, prefixName, prefixValue) {
